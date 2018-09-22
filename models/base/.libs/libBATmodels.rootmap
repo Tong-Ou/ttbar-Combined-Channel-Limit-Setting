@@ -1,0 +1,10 @@
+[ libBATmodels.so ]
+# List of selected classes
+class BCEfficiencyFitter
+class BCFitter
+class BCGraphFitter
+class BCHistogramFitter
+header BAT/BCEfficiencyFitter.h
+header BAT/BCFitter.h
+header BAT/BCGraphFitter.h
+header BAT/BCHistogramFitter.h

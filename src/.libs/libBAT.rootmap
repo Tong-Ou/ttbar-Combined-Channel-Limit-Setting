@@ -1,0 +1,59 @@
+{ decls }
+class BCObservable;
+
+[ libBAT.so ]
+# List of selected classes
+class BCCauchyPrior
+class BCConstantPrior
+class BCDataPoint
+class BCDataSet
+class BCEmptyModel
+class BCEngineMCMC
+class BCGaussianPrior
+class BCH1D
+class BCH2D
+class BCHistogramBase
+class BCIntegrate
+class BCLog
+class BCModel
+class BCModelManager
+class BCObservable
+class BCObservableSet
+class BCParameter
+class BCParameterSet
+class BCPrior
+class BCPriorModel
+class BCSplitGaussianPrior
+class BCTF1LogPrior
+class BCTF1Prior
+class BCTH1Prior
+class BCVariable
+class BCVariableSet<BCObservable>
+header BAT/BCCauchyPrior.h
+header BAT/BCConstantPrior.h
+header BAT/BCDataPoint.h
+header BAT/BCDataSet.h
+header BAT/BCEmptyModel.h
+header BAT/BCEngineMCMC.h
+header BAT/BCGaussianPrior.h
+header BAT/BCH1D.h
+header BAT/BCH2D.h
+header BAT/BCHistogramBase.h
+header BAT/BCIntegrate.h
+header BAT/BCLog.h
+header BAT/BCModel.h
+header BAT/BCModelManager.h
+header BAT/BCObservable.h
+header BAT/BCParameter.h
+header BAT/BCParameterSet.h
+header BAT/BCPrior.h
+header BAT/BCPriorModel.h
+header BAT/BCSplitGaussianPrior.h
+header BAT/BCTF1LogPrior.h
+header BAT/BCTF1Prior.h
+header BAT/BCTH1Prior.h
+header BAT/BCVariable.h
+# List of selected namespaces
+namespace BCMath
+namespace BCAux
+# List of selected typedefs and outer classes

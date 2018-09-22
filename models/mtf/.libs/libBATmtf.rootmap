@@ -1,0 +1,18 @@
+[ libBATmtf.so ]
+# List of selected classes
+class BCMTF
+class BCMTFAnalysisFacility
+class BCMTFChannel
+class BCMTFComparisonTool
+class BCMTFProcess
+class BCMTFSystematic
+class BCMTFSystematicVariation
+class BCMTFTemplate
+header BAT/BCMTF.h
+header BAT/BCMTFAnalysisFacility.h
+header BAT/BCMTFChannel.h
+header BAT/BCMTFComparisonTool.h
+header BAT/BCMTFProcess.h
+header BAT/BCMTFSystematic.h
+header BAT/BCMTFSystematicVariation.h
+header BAT/BCMTFTemplate.h

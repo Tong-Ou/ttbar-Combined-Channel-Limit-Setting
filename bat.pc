@@ -1,0 +1,11 @@
+prefix=/global/homes/t/tongou/ttbar/batinstall
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: bat
+Version: 1.0.0
+Description: Bayesian Analysis Toolkit
+Requires:
+Libs: -L${libdir} -lBAT -lBATmodels -lBATmtf  -fopenmp -L/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.10.04-x86_64-slc6-gcc62-opt/lib -lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -lMinuit -lMathMore
+Cflags: -I${includedir}  -fopenmp -pthread -std=c++1y -m64 -I/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.10.04-x86_64-slc6-gcc62-opt/include

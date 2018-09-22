@@ -1,0 +1,27 @@
+# outputs
+
+*.txt
+*.pdf
+*.png
+*.root
+
+# Binaries
+asymmErrorsFitterExample
+continueMCMC
+ensembletest
+readRootOutput
+runAnomCouplings
+runCombineGaussians
+runCombination
+runEfficiency
+runErrorPropagation
+runMyCombination
+runMyFit
+runPoissonCounting
+runReferenceCounting
+runRooInterface
+runRootOutput
+runSystematics
+runTrialFunction
+sensitivity
+templatefit
