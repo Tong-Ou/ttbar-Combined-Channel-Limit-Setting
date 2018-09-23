@@ -68,20 +68,17 @@ void ensembleTest_ttbar_singlechannel(int mass,int i,int j,int pe)
 
    	 // read histograms
    	 TH1D* hist_bkg1  = (TH1D*)file->Get(Form("bkg%d%d",i,j));    // background template for channel 1
-   	 //TH1D* hist_bkg2  = (TH1D*)file->Get("hist_bkg2");    // background template for channel 2
    	 TH1D* hist_sgn1  = (TH1D*)file->Get(Form("sgn%d%d",i,j)); // signal template for channel 1
-   	 //hist_sgn1->Scale(0.5);
-	 //TH1D* hist_sgn2  = (TH1D*)file->Get("hist_sgn2");    // signal template for channel 2
    	 TH1D* hist_data1 = (TH1D*)file->Get(Form("data%d%d",i,j));  // data for channel 1
-   	 //TH1D* hist_data2 = (TH1D*)file->Get("hist_data2");  // data for channel 2
    	 double tot_bkg1=hist_bkg1->Integral();
    	 double tot_sgn1=hist_sgn1->Integral();
 	 hist_sgn1->Scale(1./tot_sgn1);
 	 double maxNSignal=0;
-	 double stepsize=10;
+	 double stepsize=5;
 	 double maxLsoFar=0;
 	 double thisL=1;
 
+	 // Estimate maximum number of signal events
 	 while (maxLsoFar/thisL<1e5)
 	 {
 		double logL=0;
@@ -99,10 +96,10 @@ void ensembleTest_ttbar_singlechannel(int mass,int i,int j,int pe)
 
 	 //TF1* fitfunction=(TF1*)fitfile->Get("theFitFunction");
 
-   	 /*if (!hist_bkg1 || !hist_bkg2 || !hist_sgn1 || !hist_sgn2 || !hist_data1 || !hist_data2) {
+   	 if (!hist_bkg1 ||  !hist_sgn1 ||  !hist_data1 ) {
    	     BCLog::OutError("Could not find data histograms");
    	     return;
-   	 }*/
+   	 }
 
    	 // ---- perform fitting ---- //
 
@@ -136,19 +133,12 @@ void ensembleTest_ttbar_singlechannel(int mass,int i,int j,int pe)
    	 m->SetTemplate("channel1", "background_channel1", *hist_bkg1, 1.0);
    	 // m->SetTemplate("channel1", "background_channel2", *hist_bkg1, 0.0);
 
-   	 // note: the process "background_channel1" is ignored in channel 2
-   	 //m->SetTemplate("channel2", "signal", *hist_sgn2, 1.0);
-   	 //m->SetTemplate("channel2", "background_channel2", *hist_bkg2, 1.0);
-   	 // m->SetTemplate("channel2", "background_channel1", *hist_bkg2, 0.0);
-
    	 // set priors
    	 m->GetParameter("background_channel1").SetPrior(new BCGaussianPrior(tot_bkg1, sqrt(tot_bkg1)));
-   	 //m->GetParameter("background_channel2").SetPrior(new BCGaussianPrior(12, 50));
    	 m->GetParameter("signal").SetPriorConstant();
 
    	 // run MCMC
    	 m->MarginalizeAll();
-   	 //BCParameter  normPar = m->GetParameter(1);
    	 BCH1D  marginalizedSig = m->GetMarginalized(0);
    	 double CLpercentage = 0.95;
    	 double trueCL = marginalizedSig.GetLimit(CLpercentage);
@@ -159,18 +149,8 @@ void ensembleTest_ttbar_singlechannel(int mass,int i,int j,int pe)
    	 // find global mode
    	 m->FindMode( m->GetBestFitParameters() );
 
-   	 // print all marginalized distributions
-   	 //m->PrintAllMarginalized(Form("./results/marginalized_Zprime%d.pdf",mass));
-
    	 // print results of the analysis into a text file
    	 m->PrintSummary();
-
-   	 // print templates and stacks
-   	 for (int j = 0; j < m->GetNChannels(); ++j) {
-   	     BCMTFChannel* channel = m->GetChannel(j);
-   	     channel->PrintTemplates(channel->GetName() + "_templates.pdf");
-   	     m->PrintStack(j, m->GetBestFitParameters(), channel->GetName() + "_stack.pdf");
-   	 }
 
    	 // ---- perform ensemble tests ---- //
 
@@ -185,13 +165,6 @@ void ensembleTest_ttbar_singlechannel(int mass,int i,int j,int pe)
    	 file->cd();
 
    	 // create ensembles
-	 /*
-	 vector<double> parameters;
-	 for (int k=0;k<4;k++)
-	 {
-		double para=fitfunction->GetParameter(k);
-		parameters.push_back(para);
-	 }*/
    	 TTree* tree = facility->BuildEnsembles( m->GetBestFitParameters(), pe );
 	
    	 // run ensemble test

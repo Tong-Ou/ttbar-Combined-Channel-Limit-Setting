@@ -28,10 +28,12 @@ void CreateHistograms_ttbar(int mass)
 	    TFile* bkg1=TFile::Open(pathtoBF+"bkg"+re,"READ");
 	    TFile* sgn1=TFile::Open(Form(pathtoBF+"Zprime%d"+re,mass),"READ");
 	    TFile* data1=TFile::Open(pathtoBF+"data"+re,"READ");
+	    TFile* datalike1=TFile::Open(pathtoBF+"datalike"+re,"READ");
 
 	    TH1F* hist_bkg1raw= (TH1F*)bkg1->Get(histname.at(i));
 	    TH1F* hist_sgn1raw= (TH1F*)sgn1->Get(histname.at(i));
 	    TH1F* hist_data1raw=(TH1F*)data1->Get(histname.at(i));
+	    TH1F* hist_datalikeraw=(TH1F*)datalike1->Get(histname.at(i));
 
 	    int nbins=hist_bkg1raw->GetNbinsX();
 	    //double xmin=hist_bkg1raw->GetBinLowEdge(1);
@@ -43,9 +45,11 @@ void CreateHistograms_ttbar(int mass)
 	    vector<double> bkg={};
 	    vector<double> sgn={};
 	    vector<double> data={};
+	    vector<double> datalike={};
 	    vector<double> bkgerr={};
 	    vector<double> sgnerr={};
 	    vector<double> dataerr={};
+	    vector<double> datalikeerr={};
 	    for (int k=1;k<nbins+1;k++)
 	    {	
 		if (hist_bkg1raw->GetBinLowEdge(k)<1500) continue;
@@ -58,6 +62,9 @@ void CreateHistograms_ttbar(int mass)
 			sgnerr.push_back(hist_sgn1raw->GetBinError(k));
 			data.push_back(hist_data1raw->GetBinContent(k));
 			dataerr.push_back(hist_data1raw->GetBinError(k));
+			datalike.push_back(hist_datalikeraw->GetBinContent(k));
+                        datalikeerr.push_back(hist_datalikeraw->GetBinError(k));
+
 		}
 	    }
             double xmin=hist_bkg1raw->GetBinLowEdge(nbins-m+1);
@@ -65,14 +72,17 @@ void CreateHistograms_ttbar(int mass)
 	    TH1F* hist_bkg1=new TH1F(Form("bkg%d%d",j,i),"",m,xmin,xmax);
 	    TH1F* hist_sgn1=new TH1F(Form("sgn%d%d",j,i),"",m,xmin,xmax);
      	    TH1F* hist_data1=new TH1F(Form("data%d%d",j,i),"",m,xmin,xmax);
+	    TH1F* hist_datalike=new TH1F(Form("datalike%d%d",j,i),"",m,xmin,xmax);
 	    for (int k=1;k<m+1;k++)
 	    {
 		hist_bkg1->SetBinContent(k,bkg.at(k-1));
 		hist_sgn1->SetBinContent(k,sgn.at(k-1));
 		hist_data1->SetBinContent(k,data.at(k-1));
+		hist_datalike->SetBinContent(k,datalike.at(k-1));
 		hist_bkg1->SetBinError(k,bkgerr.at(k-1));
                 hist_sgn1->SetBinError(k,sgnerr.at(k-1));
                 hist_data1->SetBinError(k,dataerr.at(k-1));
+		hist_datalike->SetBinError(k,datalikeerr.at(k-1));
 	    }
     
 	    // write histograms to file
@@ -85,7 +95,7 @@ void CreateHistograms_ttbar(int mass)
 	    hist_bkg1->Write();
 	    hist_sgn1->Write();
 	    hist_data1->Write();
-
+	    hist_datalike->Write();
 
 	    // close file
 	    file->Close();
