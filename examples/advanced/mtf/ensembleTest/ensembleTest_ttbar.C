@@ -81,12 +81,13 @@ void ensembleTest_ttbar(int mass,int pe)
    	 
 	 // read histograms and add channels
    	 int N=channel.size();
-	 double maxNSignalsofar=0;
+	 double totbkgAllChannels=0;
 	 vector<TH1D*> bkg={};
 	 vector<TH1D*> sgn={};
 	 vector<TH1D*> data={};
 	 vector<double> totbkg={};
-	 vector<double> acc={};
+	 vector<double> accsgn={};
+	 vector<double> accbkg={};
 
 	 //Loop over each channel to read histograms and estimate maxNSignal
 	 for (int i=0;i<N;i++)
@@ -102,6 +103,7 @@ void ensembleTest_ttbar(int mass,int pe)
 
 		 double tot_bkg=hist_bkg->Integral();
 		 totbkg.push_back(tot_bkg);
+		 totbkgAllChannels+=tot_bkg;
 	
 		 double tot_sgn=hist_sgn->Integral();
         	 hist_sgn->Scale(1./tot_sgn);
@@ -111,10 +113,13 @@ void ensembleTest_ttbar(int mass,int pe)
                 {
                         double x;
                         accsinglechannel->SetBranchAddress(Form("accofch%s",ch),&x);
+			double y;
+			accsinglechannel->SetBranchAddress(Form("bkgofch%s",ch),&y);
                         for (int n=0;n<accsinglechannel->GetEntries();n++)
                         {
                                 accsinglechannel->GetEvent(n);
-                                acc.push_back(x);
+                                accsgn.push_back(x);
+				accbkg.push_back(y);
                         }
                 }
 
@@ -138,7 +143,7 @@ void ensembleTest_ttbar(int mass,int pe)
 	//Estimate maximum number of signal events
 	//Inherited from BayesianFramework 
         double maxNSignal=0;
-        double stepsize=5;
+        double stepsize=10;
         double maxLsoFar=0;
         double thisL=1;
 	double logL=0;
@@ -147,7 +152,7 @@ void ensembleTest_ttbar(int mass,int pe)
 	{
 	       	for (int ch=0;ch<N;ch++)
 		{
-			double e=acc[ch];
+			double e=accsgn[ch];
 			TH1D *hist_bkg=bkg[ch];
 			TH1D *hist_sgn=sgn[ch];
 			TH1D *hist_data=data[ch];	
@@ -162,16 +167,18 @@ void ensembleTest_ttbar(int mass,int pe)
 		thisL=exp(-logL);// Get the combined likelihood for all the channels.
 	  	if (thisL>maxLsoFar) maxLsoFar=thisL;
 	        maxNSignal+=stepsize;
+		logL=0;
 	 }
 	
  	// add signal processes
 	m->AddProcess("signal",0,maxNSignal);
+	m->AddProcess("background",0,2*totbkgAllChannels);
 		 
 	// add channels, bkg processes, and templates
 	for (int i=0;i<N;i++)
 	{
 		 const char* ch=channel.at(i);
-	   	 m->AddProcess(Form("background_channel%s",ch), 0, 3*totbkg.at(i) );
+	   	 //m->AddProcess(Form("background_channel%s",ch), 0, 3*totbkg.at(i) );
 
 		 // add channel
 		 m->AddChannel(Form("channel%s",ch));
@@ -182,13 +189,13 @@ void ensembleTest_ttbar(int mass,int pe)
 	
 	   	 // set template and histograms
 	   	 // note: the process "background_channel2" is ignored in channel 1
-	   	 m->SetTemplate(Form("channel%s",ch), "signal", *sgn.at(i), acc.at(i));
-	   	 m->SetTemplate(Form("channel%s",ch), Form("background_channel%s",ch), *bkg.at(i), 1.0);
+	   	 m->SetTemplate(Form("channel%s",ch), "signal", *sgn.at(i), accsgn.at(i));
+	   	 m->SetTemplate(Form("channel%s",ch), "background", *bkg.at(i), accbkg.at(i));
 	   	 // m->SetTemplate("channel1", "background_channel2", *hist_bkg1, 0.0);
 	
 
 	   	 // set priors
-	   	 m->GetParameter(Form("background_channel%s",ch)).SetPrior(new BCGaussianPrior(totbkg.at(i), sqrt(totbkg.at(i))));
+	   	 m->GetParameter("background").SetPrior(new BCGaussianPrior(totbkgAllChannels, sqrt(totbkgAllChannels)));
 	   	 //m->GetParameter("background_channel2").SetPrior(new BCGaussianPrior(12, 50));
 	   	 m->GetParameter("signal").SetPriorConstant();
 	}
