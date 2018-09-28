@@ -34,7 +34,9 @@ Running the code:
 5. For multi-channel combination, run the ensembleTest_ttbar.C. Notice that there
    is only one "signal" process, the maximum number of signal events is estimated
    by calculation of likelihood function. The efficiency of each signal template 
-   in each channel is decided by the results from Step 3.
+   in each channel is decided by the results from Step 3. 
+   (There can be single or multiple background processes, depending on the requirements.)
 
 6. After running the ensembleTest_ttbar.C for each mass point, the myLimitSetting.C
+   (myLimitSetting_combined.C for multi-channel limit setting)
    can be run to calculate the expected upper limit and uncertainty bands. 
