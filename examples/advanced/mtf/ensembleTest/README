@@ -5,14 +5,18 @@ This is the multi-channel model-dependent limit setting code based on BAT.
 Currently the codes are set to reproduce limit setting results in 
 https://cds.cern.ch/record/2305138/. 
 Channels: R0(R3) medium 1b(2b), tight 1b(2b), 8 in total
-Zprime mass points: {1750,2000,2250,2500,2750,3000,4000}
+Zprime mass points: {1750,2000,2250,2500,2750,3000,4000,5000}
 
 Files:
 ------
 
   README             - this file
-  ensembleTest.C     - the source code of the main program
-  CreateHistograms.C - a macro which create the templates and the pseudodata histograms
+  ensembleTest_ttbar.C     - codes performing likelihood multi-channel fitting
+  ensembleTest_ttbar_singlechannel.C   -  codes performing single channel fitting  
+  CreateHistograms_ttbar.C - a macro which create the templates
+  myLimitSetting.C - macro performing single-channel limit setting
+  myLimitSetting_combined.C - macro performing multi-channel limit setting
+  samplecodes - folder containing original simple examples
 
 
 
