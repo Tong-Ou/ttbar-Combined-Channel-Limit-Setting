@@ -5,9 +5,16 @@
 #include<TCanvas.h>
 #include<iostream>
 
-void CreateHistograms_ttbar(int mass)
+void CreateHistograms_ttbar(int mass,bool scale)
 {
  
+    //whether to rescale
+    double lumi0=36.1;
+    double lumi1=100;
+    const char * Lumi;
+    if (scale) Lumi="100p";
+    else Lumi="36p1";
+
     // efficiencies
     //int Zprimemass[7]={1750,2000,2250,2500,2750,3000,4000};
     double eff_sgn1 = 1.0;
@@ -56,15 +63,30 @@ void CreateHistograms_ttbar(int mass)
 		else
 		{
 			m+=1;
-			bkg.push_back(hist_bkg1raw->GetBinContent(k));
-			bkgerr.push_back(hist_bkg1raw->GetBinError(k));
-			sgn.push_back(hist_sgn1raw->GetBinContent(k));
-			sgnerr.push_back(hist_sgn1raw->GetBinError(k));
-			data.push_back(hist_data1raw->GetBinContent(k));
-			dataerr.push_back(hist_data1raw->GetBinError(k));
-			datalike.push_back(hist_datalikeraw->GetBinContent(k));
-                        datalikeerr.push_back(hist_datalikeraw->GetBinError(k));
+			if (!scale)
+			{
+				sgn.push_back(hist_sgn1raw->GetBinContent(k));
+	                        sgnerr.push_back(hist_sgn1raw->GetBinError(k));
+				bkg.push_back(hist_bkg1raw->GetBinContent(k));
+                        	bkgerr.push_back(hist_bkg1raw->GetBinError(k));
+				data.push_back(hist_data1raw->GetBinContent(k));
+				dataerr.push_back(hist_data1raw->GetBinError(k));
+				datalike.push_back(hist_datalikeraw->GetBinContent(k));
+                	        datalikeerr.push_back(hist_datalikeraw->GetBinError(k));
+			}
+			else
+			{
+				double f=lumi1/lumi0;
+				sgn.push_back(hist_sgn1raw->GetBinContent(k)*f);
+	                        sgnerr.push_back(hist_sgn1raw->GetBinError(k)*f);
+				bkg.push_back(hist_bkg1raw->GetBinContent(k)*f);
+                        	bkgerr.push_back(hist_bkg1raw->GetBinError(k)*f);
+				data.push_back(hist_data1raw->GetBinContent(k)*f);
+                                dataerr.push_back(hist_data1raw->GetBinError(k)*f);
+                                datalike.push_back(hist_datalikeraw->GetBinContent(k)*f);
+                                datalikeerr.push_back(hist_datalikeraw->GetBinError(k)*f);
 
+			}
 		}
 	    }
             double xmin=hist_bkg1raw->GetBinLowEdge(nbins-m+1);
@@ -73,6 +95,13 @@ void CreateHistograms_ttbar(int mass)
 	    TH1F* hist_sgn1=new TH1F(Form("sgn%d%d",j,i),"",m,xmin,xmax);
      	    TH1F* hist_data1=new TH1F(Form("data%d%d",j,i),"",m,xmin,xmax);
 	    TH1F* hist_datalike=new TH1F(Form("datalike%d%d",j,i),"",m,xmin,xmax);
+	    //Rebin
+	    Double_t xbins[15]={1500,1700,1900,2100,2300,2500,2700,3000,3300,3600,4000,4400,4800,5300,6000};
+	    hist_bkg1->SetBins(14,xbins);
+	    hist_sgn1->SetBins(14,xbins);
+	    hist_data1->SetBins(14,xbins);
+	    hist_datalike->SetBins(14,xbins);
+	    
 	    for (int k=1;k<m+1;k++)
 	    {
 		hist_bkg1->SetBinContent(k,bkg.at(k-1));
@@ -89,7 +118,7 @@ void CreateHistograms_ttbar(int mass)
 	    const char *option;
 	    if (i==0&&j==0) option="RECREATE";
 	    else option="UPDATE";
-	    TFile* file = TFile::Open(Form("./templates/ttbar_Zprime%d.root",mass), option);
+	    TFile* file = TFile::Open(Form("./templates_%s/ttbar_Zprime%d.root",Lumi,mass), option);
 	    file->cd();
 	
 	    hist_bkg1->Write();

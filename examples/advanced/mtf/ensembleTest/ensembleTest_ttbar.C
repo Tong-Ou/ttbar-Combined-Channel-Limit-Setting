@@ -46,19 +46,22 @@
 #endif
 
 
-void ensembleTest_ttbar(int mass,int pe)
+void ensembleTest_ttbar(int mass,int pe,bool scale)
 {
     vector<const char*> channel={"00","01","02","03","10","11","12","13"};
-    
+    const char * lumi;
+    if (scale) lumi="100p";
+    else lumi="36p1";
+	    
     // open log file
-   	 BCLog::OpenLog(Form("./LogFiles/log_Zprime%d.txt",mass), BCLog::detail, BCLog::detail);
+   	 BCLog::OpenLog(Form("./LogFiles/combined_%s/log_Zprime%d.txt",lumi,mass), BCLog::detail, BCLog::detail);
 
    	 // ---- read histograms from a file ---- //
 
    	 // open file
-   	 std::string fname = Form("./templates/ttbar_Zprime%d.root",mass);
+   	 std::string fname = Form("./templates_%s/ttbar_Zprime%d.root",lumi,mass);
    	 TFile* file = TFile::Open(fname.data(), "READ");
-	 TFile* accfile=TFile::Open(Form("./templates/AccTimesEffforZprime%d.root",mass),"READ");
+	 TFile* accfile=TFile::Open(Form("./templates_%s/AccTimesEffforZprime%d.root",lumi,mass),"READ");
 
 	 TTree* accsinglechannel=(TTree*)accfile->Get("acctimeseff");
 
@@ -153,6 +156,7 @@ void ensembleTest_ttbar(int mass,int pe)
 	       	for (int ch=0;ch<N;ch++)
 		{
 			double e=accsgn[ch];
+			//std::cout<<"acc:"<<e<<std::endl;
 			TH1D *hist_bkg=bkg[ch];
 			TH1D *hist_sgn=sgn[ch];
 			TH1D *hist_data=data[ch];	
@@ -170,11 +174,11 @@ void ensembleTest_ttbar(int mass,int pe)
 		logL=0;
 	 }
 	
- 	// add signal processes
+ 	// add signal and background processes
 	m->AddProcess("signal",0,maxNSignal);
 	m->AddProcess("background",0,2*totbkgAllChannels);
 		 
-	// add channels, bkg processes, and templates
+	// add channels, and templates
 	for (int i=0;i<N;i++)
 	{
 		 const char* ch=channel.at(i);
@@ -215,7 +219,7 @@ void ensembleTest_ttbar(int mass,int pe)
    	 m->FindMode( m->GetBestFitParameters() );
 
    	 // print all marginalized distributions
-   	 m->PrintAllMarginalized(Form("./results/marginalized_Zprime%d.pdf",mass));
+   	 m->PrintAllMarginalized(Form("./results/Step2/combined_%s/marginalized_Zprime%d.pdf",lumi,mass));
 
    	 // print results of the analysis into a text file
    	 m->PrintSummary();
@@ -236,7 +240,7 @@ void ensembleTest_ttbar(int mass,int pe)
    	 facility->SetFlagMarginalize(true);
 
    	 // open new file
-   	 file = TFile::Open(Form("./results/Step2/Step2_Zprime%d.root",mass), "RECREATE");
+   	 file = TFile::Open(Form("./results/Step2/combined_%s/Step2_Zprime%d.root",lumi,mass), "RECREATE");
    	 file->cd();
 
    	 // create ensembles

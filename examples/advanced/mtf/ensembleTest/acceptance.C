@@ -4,15 +4,28 @@
 #include<TTree.h>
 #include<vector>
 
-void acceptance()
+void acceptance(bool scale)
 {
+	double lumi;
+	const char* Lumi;
+	if (scale) 
+	{
+		lumi=36.1;
+		Lumi="36p1";
+	}
+	else
+	{
+		lumi=100;
+		Lumi="100p";
+	}
+
 	int Zprimemass[8]={1750,2000,2250,2500,2750,3000,4000,5000};
 	double xsec[8]={334,172,92.4,51.1,28.9,16.7,2.13,0.331}; //fb
 	for (int i=0;i<8;i++)
 	{
 		int mass=Zprimemass[i];
-		TFile * input=TFile::Open(Form("./templates/ttbar_Zprime%d.root",mass));
-		TFile * output=new TFile(Form("./templates/AccTimesEffforZprime%d.root",mass),"RECREATE");
+		TFile * input=TFile::Open(Form("./templates_%s/ttbar_Zprime%d.root",Lumi,mass));
+		TFile * output=new TFile(Form("./templates_%s/AccTimesEffforZprime%d.root",Lumi,mass),"RECREATE");
 		double totsgn=0;
 		double totbkg=0;
 		std::vector<std::vector<double>> SingleChannelSgn={};
@@ -57,7 +70,7 @@ void acceptance()
 			}
 		}
 		
-		totsgn/=(xsec[i]*36.1);
+		totsgn/=(xsec[i]*lumi);
 		acc->Fill();
 		output->cd();
 		acc->Write();
