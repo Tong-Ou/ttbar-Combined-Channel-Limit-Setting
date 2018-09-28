@@ -1,2 +1,8 @@
-vector<const char*> channel={"00","01","02","03","10","11","12","13"}
-root -b -q "ensembleTest_ttbar.C(2000,channel,100)+"
+root -b -q "ensembleTest_ttbar.C(1750,1000,true)"
+root -b -q "ensembleTest_ttbar.C(2000,1000,true)"
+root -b -q "ensembleTest_ttbar.C(2250,1000,true)"
+root -b -q "ensembleTest_ttbar.C(2500,1000,true)"
+root -b -q "ensembleTest_ttbar.C(2750,1000,true)"
+root -b -q "ensembleTest_ttbar.C(3000,1000,true)"
+root -b -q "ensembleTest_ttbar.C(4000,1000,true)"
+root -b -q "ensembleTest_ttbar.C(5000,1000,true)"

@@ -5,24 +5,45 @@
 #include<TH1D.h>
 #include<TTree.h>
 #include<vector>
+#include<algorithm>
 
-void myLimitSetting()
+void myLimitSetting_combined(bool scale)
 {
-	int Zprimemass[7]={1750,2000,2250,2500,2750,3000,4000};
-	double lumi=36100;
+	int Zprimemass[8]={1750,2000,2250,2500,2750,3000,4000,5000};
+	double lumi;
+	const char*Lumi;
+	if (scale) 
+	{	
+		lumi=100000;
+		Lumi="100p";
+	}
+	else 
+	{
+		lumi=36100;
+		Lumi="36p1";
+	}
 	int index=0;
 	TGraphErrors * observed = new TGraphErrors();
         TGraphAsymmErrors * expectedWithOneSigma = new TGraphAsymmErrors();
         TGraphAsymmErrors * expectedWithTwoSigma = new TGraphAsymmErrors();
 
-	for (int i=0;i<7;i++)
+	for (int i=0;i<8;i++)
 	{
 		int mass=Zprimemass[i];
-		TFile * Step2output=TFile::Open(Form("./results/Step2/datalike/Step2_Zprime%d00.root",mass),"READ");
-		
+		TFile * Step2output=TFile::Open(Form("./results/Step2/combined_%s/Step2_Zprime%d.root",Lumi,mass),"READ");
+		TFile * accfile=TFile::Open(Form("./templates_%s/AccTimesEffforZprime%d.root",Lumi,mass),"READ");		
+		//Read acceptance
+		TTree * tree=(TTree *)accfile->Get("acctimeseff");
+		double totacc;
+		tree->SetBranchAddress(Form("totaccformass%d",mass),&totacc);
+		tree->GetEvent(0);
+		std::cout<<totacc<<std::endl;
+		double efflumi=lumi*totacc;
+
 		//Read observed upper limit
-		TH1D * observedCL=(TH1D*) Step2output->Get("observedCL");
-		double CLObserved=observedCL->GetBinContent(1)/lumi;
+		TH1D * observedCL=(TH1D*)Step2output->Get("observedCL");
+		double CLObserved=observedCL->GetBinContent(1)/efflumi;
+		std::cout<<"Observed upper limit:"<<CLObserved<<std::endl;
 
 		TTree * ensemble_test=(TTree*)Step2output->Get("ensemble_test");
 		int nentries=ensemble_test->GetEntries();
@@ -47,7 +68,7 @@ void myLimitSetting()
   		for (int i=0; i<5; i++) {		
     		wantEvents = nVals*quantiles[i];
     		bestEvent = (int) wantEvents;
-    		bandLimits.push_back(CLPseudo.at(bestEvent)/lumi);
+    		bandLimits.push_back(CLPseudo.at(bestEvent)/efflumi);
   		}
 
 		//Set points on observed and expected graphs
@@ -58,10 +79,11 @@ void myLimitSetting()
 		expectedWithTwoSigma->SetPoint(index,mass,bandLimits.at(2));
 		expectedWithTwoSigma->SetPointError(index,0,0,(bandLimits.at(2)-bandLimits.at(0)),(bandLimits.at(4)-bandLimits.at(2)));
 		std::cout << "Uncertainty bands " << bandLimits.at(1) << " " << bandLimits.at(3) << std::endl;
+		std::cout<<"Expected limit:"<<bandLimits.at(2)<<std::endl;
 		index+=1;
 	}
 
-	TFile outfile("./results/Step300_datalike.root","RECREATE");
+	TFile outfile(Form("./results/Step3_combined_%s.root",Lumi),"RECREATE");
 	outfile.cd();
 	observed->SetName("observedXSecAccVersusMass");
   	observed->Write();
